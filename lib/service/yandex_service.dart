@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 class YandexMapService {
-  static Future<List<MapObject>> getDirection(Point from, Point to, {required String mode}) async {
+  static Future<List<MapObject>> getDirection(Point from, Point to,
+      {required String mode}) async {
     final result = await YandexDriving.requestRoutes(
       points: [
         RequestPoint(point: from, requestPointType: RequestPointType.wayPoint),
@@ -16,6 +17,7 @@ class YandexMapService {
     );
 
     final drivingResults = await result.$2;
+    // print(result.$1);
 
     if (drivingResults.error != null) {
       print("Joylashuv olinmadi");

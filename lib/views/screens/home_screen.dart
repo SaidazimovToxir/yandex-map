@@ -66,108 +66,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return await resultWithSession.$2;
   }
 
-  Future<void> _showBottomSheet(Point destination) async {
-    if (_currentLocation == null) {
-      _currentLocation = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-    }
-    final start = Point(
-      latitude: _currentLocation!.latitude,
-      longitude: _currentLocation!.longitude,
-    );
-
-    final distance = Geolocator.distanceBetween(
-      start.latitude,
-      start.longitude,
-      destination.latitude,
-      destination.longitude,
-    );
-
-    final travelTime = (distance / 1.4).round();
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      backgroundColor: nightLight.value ? Colors.grey[800] : Colors.white,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: SizedBox(
-            width: double.infinity,
-            height: 200,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Distance: ${(distance / 1000).toStringAsFixed(2)} km',
-                  style: TextStyle(
-                    color: nightLight.value ? Colors.white : Colors.black,
-                    fontSize: 18,
-                  ),
-                ),
-                const Gap(10),
-                Text(
-                  'Estimated Time: ${(travelTime / 60).toStringAsFixed(2)} minutes',
-                  style: TextStyle(
-                    color: nightLight.value ? Colors.white : Colors.black,
-                    fontSize: 18,
-                  ),
-                ),
-                const Gap(20),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildTransportButton(
-                          'Walking', Icons.directions_walk, start, destination),
-                      _buildTransportButton(
-                          'Cycling', Icons.directions_bike, start, destination),
-                      _buildTransportButton(
-                          'Driving', Icons.directions_car, start, destination),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTransportButton(
-      String label, IconData icon, Point start, Point destination) {
-    return Column(
-      children: [
-        FloatingActionButton(
-          onPressed: () async {
-            Navigator.pop(context);
-            polylines = await YandexMapService.getDirection(start, destination,
-                mode: label.toLowerCase());
-            setState(() {});
-          },
-          backgroundColor: nightLight.value ? Colors.grey[700] : Colors.blue,
-          child: Icon(icon, color: Colors.white),
-        ),
-        const Gap(5),
-        Text(label,
-            style: TextStyle(
-                color: nightLight.value ? Colors.white : Colors.black)),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           YandexMap(
-            
             nightModeEnabled: nightLight.value,
             onMapCreated: (controller) {
               mapController = controller;
@@ -181,9 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
               );
               setState(() {});
             },
-            onMapLongTap: (point) {
+            onMapTap: (point) {
               setState(() {
-                _showBottomSheet(point);
                 myCurrentLocation = point;
               });
             },
@@ -207,10 +110,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 opacity: 1,
                 icon: PlacemarkIcon.single(
                   PlacemarkIconStyle(
-                    scale: nightLight.value ? .4 : .1,
-                    image: BitmapDescriptor.fromAssetImage(nightLight.value
-                        ? "assets/marker2.png"
-                        : "assets/marker.png"),
+                    scale: nightLight.value ? 0.4 : 0.2,
+                    image: BitmapDescriptor.fromAssetImage(
+                      nightLight.value
+                          ? "assets/marker1.png"
+                          : "assets/marker1.png",
+                    ),
                   ),
                 ),
               ),
@@ -229,27 +134,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ...polylines,
             ],
-          ),
-          Positioned(
-            right: 10,
-            top: 120,
-            child: GestureDetector(
-              onTap: () => setState(() => nightLight.value = !nightLight.value),
-              child: Container(
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey,
-                ),
-                child: Icon(
-                  nightLight.value
-                      ? Icons.mode_night_rounded
-                      : CupertinoIcons.sun_max_fill,
-                  color: nightLight.value ? Colors.black : Colors.amber,
-                ),
-              ),
-            ),
           ),
           Positioned(
             top: 70,
@@ -331,15 +215,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     fillColor:
                         nightLight.value ? Colors.grey[700] : Colors.white,
                     prefixIcon: const Icon(Icons.location_on_rounded,
-                        color: Colors.red),
-                    hintText: "Search for a place and address",
+                        color: Colors.teal),
+                    hintText: "Search",
                     hintStyle: TextStyle(
                       color: nightLight.value ? Colors.white : Colors.black,
                       fontWeight: FontWeight.w400,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
-                      borderSide: const BorderSide(color: Colors.green),
+                      borderSide: const BorderSide(color: Colors.teal),
                     ),
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
@@ -374,8 +258,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: nightLight.value
-                          ? Colors.grey[700]
-                          : Colors.grey.withOpacity(.8),
+                          ? Colors.teal[700]
+                          : Colors.teal.withOpacity(.8),
                     ),
                     child: const Icon(Icons.add, color: Colors.white),
                   ),
@@ -391,8 +275,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: nightLight.value
-                          ? Colors.grey[700]
-                          : Colors.grey.withOpacity(.8),
+                          ? Colors.teal[700]
+                          : Colors.teal.withOpacity(.8),
                     ),
                     child: const Icon(Icons.remove, color: Colors.white),
                   ),
@@ -404,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
-        backgroundColor: nightLight.value ? Colors.grey[700] : Colors.grey,
+        backgroundColor: nightLight.value ? Colors.teal : Colors.teal,
         onPressed: () async {
           _currentLocation = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high,
